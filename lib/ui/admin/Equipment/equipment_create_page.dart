@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:project/bloc/AccountBloc.dart';
+import 'package:project/bloc/EquipmentBloc.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:project/ui/image_gallory_page.dart';
 import 'package:project/utils/dialog_customize.dart';
@@ -8,15 +11,15 @@ import 'package:toast/toast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 
 class EquipmentCreatePage extends StatefulWidget {
-  String username, password, email, fullname, phone, description, image;
+  String name, description, image;
+  int id, quantity, status;
   bool isUpdate;
   EquipmentCreatePage(
       {Key key,
-      this.username,
-      this.password,
-      this.email,
-      this.fullname,
-      this.phone,
+      this.name,
+      this.status,
+      this.id,
+      this.quantity,
       this.description,
       this.image,
       this.isUpdate = false})
@@ -27,12 +30,13 @@ class EquipmentCreatePage extends StatefulWidget {
 
 class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
   final formKey = GlobalKey<FormState>();
-  AccountBloc bloc = AccountBloc();
+  EquipmentBloc bloc = EquipmentBloc();
+  int group = 1;
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
       child: Scaffold(
-          appBar: AppBarCustomize().setAppbar(context, 'Actor Page', true),
+          appBar: AppBarCustomize().setAppbar(context, 'Equipment Page', true),
           body: SingleChildScrollView(child: getBody(context))),
     );
   }
@@ -50,44 +54,11 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
             Padding(
               padding: EdgeInsets.all(10),
               child: TextFormField(
-                readOnly: widget.isUpdate,
-                initialValue: widget.username,
-                decoration: borderTextField('Username: '),
-                validator: (input) => input.length < 3
-                    ? 'Username is required more than 3 words'
-                    : null,
-                onSaved: (input) => widget.username = input,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                initialValue: widget.password,
-                decoration: borderTextField('Password: '),
-                validator: (input) => input.length < 3
-                    ? 'Password is required more than 3 words'
-                    : null,
-                onSaved: (input) => widget.password = input,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                initialValue: widget.email,
-                decoration: borderTextField('Email: '),
+                initialValue: widget.name,
+                decoration: borderTextField('Name: '),
                 validator: (input) =>
-                    !input.contains('@') ? 'Email is invalid' : null,
-                onSaved: (input) => widget.email = input,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                initialValue: widget.fullname,
-                decoration: borderTextField('Full name: '),
-                validator: (input) =>
-                    input.length <= 0 ? 'Full Name is required' : null,
-                onSaved: (input) => widget.fullname = input,
+                    input.length <= 0 ? 'Name is required' : null,
+                onSaved: (input) => widget.name = input,
               ),
             ),
             Padding(
@@ -103,15 +74,54 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
             Padding(
               padding: EdgeInsets.all(10),
               child: TextFormField(
-                initialValue: widget.phone,
-                decoration: borderTextField('Phone: '),
+                initialValue:
+                    widget.quantity == null ? '' : widget.quantity.toString(),
+                decoration: borderTextField('Quantity: '),
                 validator: (input) =>
-                    input.length < 10 ? 'Phone is required 11 numbers' : null,
-                onSaved: (input) => widget.phone = input,
-                inputFormatters: [LengthLimitingTextInputFormatter(11)],
-                keyboardType: TextInputType.phone,
+                    (input.length == 0 ? true : int.parse(input) <= 0)
+                        ? 'Quantity is required greatter than 0'
+                        : null,
+                onSaved: (input) => widget.quantity = int.parse(input),
+                keyboardType: TextInputType.number,
               ),
             ),
+            Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(width: 1, color: Colors.black45)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      'Available : ',
+                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                    ),
+                    Radio(
+                      onChanged: (value) {
+                        setState(() {
+                          group = value;
+                        });
+                      },
+                      groupValue: group,
+                      value: 1,
+                    ),
+                    Text(
+                      'Non-available : ',
+                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                    ),
+                    Radio(
+                      onChanged: (value) {
+                        setState(() {
+                          group = value;
+                        });
+                      },
+                      groupValue: group,
+                      value: 2,
+                    )
+                  ],
+                )),
             submitButton(context)
           ],
         ),
@@ -122,7 +132,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
   InputDecoration borderTextField(String text) {
     return InputDecoration(
       labelText: text,
-      labelStyle: TextStyle(fontSize: 20),
+      labelStyle: TextStyle(fontSize: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey),
@@ -159,7 +169,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
             width: sizeH * .35,
             color: Colors.black12,
             child: Icon(
-              Icons.add,
+              Icons.image,
               size: sizeW * .15,
             ),
           )
@@ -218,34 +228,33 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       }
       formKey.currentState.save();
       if (widget.isUpdate) {
-        updateActor(context);
+        updateEquipment(context);
       } else {
-        insertActor(context);
+        insertEquipment(context);
       }
     }
   }
 
-  insertActor(context) async {
-    int result = await bloc.insertActor(widget.username, widget.password,
-        widget.phone, widget.email, widget.fullname, widget.image);
+  insertEquipment(context) async {
+    int result = await bloc.insertEquipment(widget.name, widget.description,
+        widget.quantity, widget.image, widget.status);
     if (result == -1) {
-      await Dialogs.showMessageDialog(context,
-          'Some error is just happened!!. Make sure your username is not duplicated');
+      await Dialogs.showMessageDialog(context, 'Some error is just happened!!');
     } else {
       await Dialogs.showMessageDialog(context, 'Insert success');
       Navigator.of(context).pop(true);
     }
   }
 
-  updateActor(context) async {
-    //   int result = await bloc.updatetActor(widget.username, widget.password,
-    //       widget.phone, widget.email, widget.fullname, widget.image,
-    //       descriptionAccount: widget.description);
-    //   if (result == -1) {
-    //     await Dialogs.showMessageDialog(context, 'Some error is just happened!!');
-    //   } else {
-    //     await Dialogs.showMessageDialog(context, 'Update success');
-    //     Navigator.of(context).pop(true);
-    //   }
+  updateEquipment(context) async {
+    print(widget.id);
+    int result = await bloc.updatetEquipment(widget.id, widget.name,
+        widget.description, widget.quantity, widget.image, widget.status);
+    if (result == -1) {
+      await Dialogs.showMessageDialog(context, 'Some error is just happened!!');
+    } else {
+      await Dialogs.showMessageDialog(context, 'Update success');
+      Navigator.of(context).pop(true);
+    }
   }
 }

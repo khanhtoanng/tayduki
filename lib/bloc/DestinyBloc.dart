@@ -6,8 +6,10 @@ class DestinyBloc {
   DestinyRepository destinyRepository = DestinyRepository();
 
   StreamController listDestinyController = StreamController();
+  StreamController destinyController = StreamController();
 
   Stream get listDestinyStream => listDestinyController.stream;
+  Stream get destinyStream => destinyController.stream;
 
   List<dynamic> listDestiny;
 
@@ -21,6 +23,21 @@ class DestinyBloc {
         listDestinyController.sink.add(listDestiny);
       } else {
         listDestinyController.sink.addError('There is not data!!');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getDestinyById(int id) async {
+    try {
+      destinyController.sink.add('loading');
+      var data = await destinyRepository.getDestinyById(id);
+      // check if list is not empty
+      if (data != null) {
+        destinyController.sink.add(data);
+      } else {
+        destinyController.sink.addError('There is not data!!');
       }
     } catch (e) {
       print(e);
@@ -95,5 +112,6 @@ class DestinyBloc {
 
   void dispose() {
     listDestinyController.close();
+    destinyController.close();
   }
 }

@@ -3,12 +3,20 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project/bloc/DestinyBloc.dart';
 import 'package:project/ui/admin/Equipment/equipment_management_page.dart';
 import 'package:project/ui/admin/account/account_management_page.dart';
+import 'package:project/ui/admin/detail_destiny_page.dart';
 import 'package:project/ui/admin/destiny/destiny_create_page.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:project/utils/dialog_customize.dart';
 import 'package:project/utils/filter_text.dart';
 
 class DestinyManagementPage extends StatefulWidget {
+  bool isAddActor;
+  bool isAddEquip;
+  DestinyManagementPage({
+    Key key,
+    this.isAddActor = false,
+    this.isAddEquip = false,
+  }) : super(key: key);
   @override
   _DestinyManagementPageState createState() => _DestinyManagementPageState();
 }
@@ -21,6 +29,13 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
   void initState() {
     bloc.getAllDestiny();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.isAddActor = false;
+    widget.isAddEquip = false;
+    super.dispose();
   }
 
   @override
@@ -88,6 +103,26 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
             ],
           ),
         ),
+        widget.isAddActor == true || widget.isAddEquip == true
+            ? Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Choose Destiny',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.redAccent),
+                ),
+              )
+            : Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'List Destiny',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
         Container(
           height: size.height * .7,
           child: Column(
@@ -146,14 +181,27 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
         actionExtentRatio: 0.25,
         child: InkWell(
           onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => EquipmentManagementPage(
-                          isShopping: true,
-                          idDestiny: item['id'],
-                          nameDestiny: item['name'],
-                        )));
+            if (widget.isAddActor) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AccountManagementPage(
+                            isShopping: true,
+                            idDestiny: item['id'],
+                            nameDestiny: item['name'],
+                          )));
+            } else if (widget.isAddEquip) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EquipmentManagementPage(
+                            isShopping: true,
+                            idDestiny: item['id'],
+                            nameDestiny: item['name'],
+                          )));
+            } else {
+              showDetail(item['id']);
+            }
           },
           child: Container(
               alignment: Alignment.center,
@@ -253,6 +301,15 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
         ],
       ),
     );
+  }
+
+  showDetail(id) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => DetailDestinyPage(
+                  id: id,
+                )));
   }
 
   updateDestiny(item) {

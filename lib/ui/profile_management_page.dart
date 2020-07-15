@@ -13,10 +13,13 @@ class ProfileManagementPage extends StatefulWidget {
 
 class _ProfileManagementPageState extends State<ProfileManagementPage> {
   AccountBloc bloc = AccountBloc();
-  bool isShowPass = false;
   @override
   void initState() {
-    getUsername().then((username) => bloc.getAccountDetail(username));
+    if (widget.account != null) {
+      bloc.getAccountDetail(widget.account['username']);
+    } else {
+      getUsername().then((username) => bloc.getAccountDetail(username));
+    }
     super.initState();
   }
 
@@ -54,7 +57,7 @@ class _ProfileManagementPageState extends State<ProfileManagementPage> {
             }
           }
           return Text(
-            snapshot.hasError ? snapshot.error : 'Loading..',
+            snapshot.hasError ? snapshot.error : '.',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           );
         },
@@ -180,15 +183,6 @@ class _ProfileManagementPageState extends State<ProfileManagementPage> {
             top: size.height * .01,
             left: size.width / 4,
             right: size.width / 4,
-            // child: Hero(
-            //     tag: widget.heroTag,
-            //     child: Container(
-            //         decoration: BoxDecoration(
-            //             image: DecorationImage(
-            //                 image: AssetImage(widget.heroTag),
-            //                 fit: BoxFit.cover)),
-            //         height: 200.0,
-            //         width: 200.0))),
             child: CircleAvatar(
               radius: 80,
               backgroundColor: Colors.transparent,
@@ -196,7 +190,22 @@ class _ProfileManagementPageState extends State<ProfileManagementPage> {
                 child: SizedBox(
                   width: size.width * .35,
                   height: size.height * .2,
-                  child: Image.network(item['image'], fit: BoxFit.fill),
+                  child: Hero(
+                    tag: item,
+                    child: Image.network(
+                      item['image'],
+                      fit: BoxFit.fill,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Color(0xffb744b8))),
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),

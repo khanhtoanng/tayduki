@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:project/bloc/AccountBloc.dart';
 import 'package:project/ui/admin/account/account_create_page.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:project/ui/profile_management_page.dart';
 import 'package:project/ui/show_cart_page.dart';
 import 'package:project/utils/dialog_customize.dart';
 import 'package:project/bloc/ShoppingCartBloc.dart';
@@ -128,6 +131,29 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
             ],
           ),
         ),
+        widget.isShopping == true
+            ? Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Choose Actor',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.redAccent),
+                ),
+              )
+            : Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'List Actor',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.redAccent),
+                ),
+              ),
         Container(
           height: size.height * .7,
           child: Column(
@@ -201,6 +227,13 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
               onTap: () {
                 if (widget.isShopping) {
                   editModelBottomShee(context, item);
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfileManagementPage(
+                                account: item,
+                              )));
                 }
               },
               leading: CircleAvatar(
@@ -210,7 +243,22 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
                   child: SizedBox(
                     width: 60,
                     height: 60,
-                    child: Image.network(item['image'], fit: BoxFit.fill),
+                    child: Hero(
+                      tag: item,
+                      child: Image.network(
+                        item['image'],
+                        fit: BoxFit.fill,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                                valueColor: new AlwaysStoppedAnimation<Color>(
+                                    Color(0xffb744b8))),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'package:project/repository/EquipmentRepository.dart';
 
 class EquipmentBloc {
@@ -36,7 +38,6 @@ class EquipmentBloc {
               .toLowerCase()
               .contains(value.trim().toLowerCase());
         }).toList();
-        print(filterList);
         listEquipmentController.sink.add(filterList);
       } else {
         listEquipmentController.sink.add(listEquipment);
@@ -44,29 +45,78 @@ class EquipmentBloc {
     }
   }
 
-  Future<int> deleteEquipment(String id) async {
+  // filter by date
+  filterByDate({start, end}) {
+    try {
+      List filterList = [];
+      if (listEquipment.length != 0) {
+        if (start == null && end == null) {
+          listEquipmentController.sink.add(listEquipment);
+        } else if (start != null && end != null) {
+          filterList = listEquipment.where((item) {
+            return (DateTime.parse(item['createTime']).compareTo(start) >= 0 &&
+                DateTime.parse(item['createTime']).compareTo(end) <= 0);
+          }).toList();
+          listEquipmentController.sink.add(filterList);
+        } else if (end == null) {
+          filterList = listEquipment.where((item) {
+            return DateTime.parse(item['createTime']).compareTo(start) >= 0;
+          }).toList();
+          listEquipmentController.sink.add(filterList);
+        } else if (start == null) {
+          filterList = listEquipment.where((item) {
+            return DateTime.parse(item['createTime']).compareTo(end) <= 0;
+          }).toList();
+          listEquipmentController.sink.add(filterList);
+        }
+      } else {
+        listEquipmentController.sink.add(listEquipment);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<int> deleteEquipment(int id) async {
     int result;
-    if (id.length != 0) {
+    if (id.toString().length != 0) {
       result = await equipmentRepository.deleteEquipment(id);
     }
     return result;
   }
 
-  // insertActor(String username, String password, String phone, String email,
-  //     String fullname,
-  //     {String descriptionAccount = ''}) async {
-  //   int result;
-  //   Map body = {
-  //     'username': username.trim(),
-  //     'password': password.trim(),
-  //     'phone': phone.trim(),
-  //     'email': email.trim(),
-  //     'fullname': fullname.trim(),
-  //     'descriptionAccount': descriptionAccount.trim()
-  //   };
-  //   result = await equipmentRepository.insertActor(json.encode(body));
-  //   return result;
-  // }
+  insertEquipment(String name, String description, int quantity, String image,
+      int status) async {
+    int result;
+    Map body = {
+      "name": name,
+      "description": description,
+      "quantity": quantity,
+      "image": image,
+      "status": status == 1 ? 'available' : 'non-available'
+    };
+    result = await equipmentRepository.insertEquipment(json.encode(body));
+    return result;
+  }
+
+  updatetEquipment(int id, String name, String description, int quantity,
+      String image, int status) async {
+    int result;
+    Map body = {
+      "name": name,
+      "description": description,
+      "quantity": quantity,
+      "image": image,
+      "status": status == 1 ? 'available' : 'non-available'
+    };
+    try {
+      result = await equipmentRepository.updateEquipment(id, json.encode(body));
+    } catch (e) {
+      result = -1;
+    }
+
+    return result;
+  }
 
   void dispose() {
     listEquipmentController.close();

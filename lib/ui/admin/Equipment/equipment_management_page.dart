@@ -28,11 +28,20 @@ class EquipmentManagementPage extends StatefulWidget {
 class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
   EquipmentBloc bloc = EquipmentBloc();
   int quantity = 0;
+  DateTime createTime, endTime;
 
   @override
   void initState() {
     bloc.getAllEquipment();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    createTime = null;
+    endTime = null;
+    super.dispose();
+    print('dispose');
   }
 
   @override
@@ -45,7 +54,7 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
       backgroundColor: Colors.white,
       appBar:
           AppBarCustomize().setAppbar(context, 'Equipment Management', true),
-      body: SingleChildScrollView(child: Container(child: getBody(context))),
+      body: Container(child: getBody(context)),
       floatingActionButton: Container(
         padding: EdgeInsets.only(top: 10),
         child: FloatingActionButton(
@@ -113,10 +122,10 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: SizedBox(
-                      width: size.width * .3,
-                      height: size.height * .2,
-                      child: Image.asset('assets/images/actorIcon.png',
-                          fit: BoxFit.fill),
+                      width: size.width * .5,
+                      height: size.height * .25,
+                      child: Image.asset('assets/images/equimentIcon.png',
+                          fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -134,14 +143,129 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
           ),
         ),
         Container(
-          height: size.height * .7,
-          child: Column(
+          height: size.height * .1,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              getListEquipment(context),
+              datepickerStart(context),
+              Icon(Icons.arrow_forward),
+              datepickerEnd(context),
             ],
           ),
         ),
+        widget.isShopping == true
+            ? Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Choose Equipment',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.redAccent),
+                ),
+              )
+            : Container(
+                padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'List Equipment',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.redAccent),
+                ),
+              ),
+        SingleChildScrollView(
+          child: Container(
+            height: size.height * .575,
+            child: Column(
+              children: <Widget>[
+                getListEquipment(context),
+              ],
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget datepickerStart(context) {
+    return InkWell(
+      onTap: () async {
+        await showDatePicker(
+          context: context,
+          initialDate: createTime == null ? DateTime.now() : createTime,
+          firstDate: DateTime(2018),
+          lastDate: DateTime(2090),
+        ).then((value) {
+          if (value != null) {
+            setState(() {
+              createTime = value;
+            });
+            bloc.filterByDate(start: createTime, end: endTime);
+          } else {
+            setState(() {
+              createTime = null;
+            });
+            bloc.filterByDate(start: createTime, end: endTime);
+          }
+        });
+      },
+      child: Container(
+          margin: EdgeInsets.only(left: 40),
+          padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
+          decoration: BoxDecoration(
+              border: Border.all(
+                width: 1,
+                color: Colors.grey,
+              ),
+              borderRadius: BorderRadius.circular(10)),
+          child: Text(
+            createTime == null
+                ? 'Start date'
+                : createTime.toString().split(' ')[0],
+            style: TextStyle(fontSize: 15, color: Colors.black54),
+          )),
+    );
+  }
+
+  Widget datepickerEnd(context) {
+    return InkWell(
+      onTap: () async {
+        await showDatePicker(
+          context: context,
+          initialDate: endTime == null ? DateTime.now() : endTime,
+          firstDate: DateTime(2018),
+          lastDate: DateTime(2090),
+        ).then((value) {
+          if (value != null) {
+            setState(() {
+              endTime = value;
+            });
+            bloc.filterByDate(start: createTime, end: endTime);
+          } else {
+            setState(() {
+              endTime = null;
+            });
+            bloc.filterByDate(start: createTime, end: endTime);
+          }
+        });
+      },
+      child: Container(
+          margin: EdgeInsets.only(right: 40),
+          padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
+          decoration: BoxDecoration(
+              border: Border.all(
+                width: 1,
+                color: Colors.grey,
+              ),
+              borderRadius: BorderRadius.circular(10)),
+          child: Text(
+            endTime == null ? 'End date' : endTime.toString().split(' ')[0],
+            style: TextStyle(fontSize: 15, color: Colors.black54),
+          )),
     );
   }
 
@@ -231,19 +355,13 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
                       top: size.height * .01, left: size.width * .03),
                   child: Column(
                     children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            'Description :',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          Expanded(
-                            child: Text(
-                              item['description'],
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        height: size.height * .05,
+                        width: double.infinity,
+                        child: Text(
+                          'Description :${item['description']}',
+                          style: TextStyle(fontSize: 12),
+                        ),
                       ),
                       Row(
                         children: <Widget>[
@@ -253,6 +371,18 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
                           ),
                           Text(
                             item['quantity'].toString(),
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            'Create Time :',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          Text(
+                            item['createTime'],
                             style: TextStyle(fontSize: 12),
                           ),
                         ],
@@ -273,7 +403,7 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
               caption: 'Edit',
               icon: Icons.edit,
               onTap: () {
-                // updateActor(item);
+                updateEquipment(item);
               },
             ),
           ),
@@ -285,7 +415,7 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
               color: Colors.transparent,
               icon: Icons.delete,
               onTap: () {
-                // deleteActor(item['username']);
+                deleteEquipment(item['id']);
               },
             ),
           ),
@@ -294,40 +424,39 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
     );
   }
 
-  // deleteActor(username) async {
-  //   final action =
-  //       await Dialogs.yesAbortDialog(context, 'Do you want to Delete');
-  //   if (action == DialogAction.yes) {
-  //     int result = await bloc.deleteActor(username);
-  //     if (result == -1) {
-  //       await Dialogs.showMessageDialog(context,
-  //           'Some error is just happened.\nMake sure that actor is not in any Scenario!!');
-  //     } else if (result == 1) {
-  //       await Dialogs.showMessageDialog(context, 'Delete success');
-  //       bloc.getAllActor();
-  //     }
-  //   }
-  // }
+  deleteEquipment(id) async {
+    final action =
+        await Dialogs.yesAbortDialog(context, 'Do you want to Delete');
+    if (action == DialogAction.yes) {
+      int result = await bloc.deleteEquipment(id);
+      if (result == -1) {
+        await Dialogs.showMessageDialog(context,
+            'Some error is just happened.\nMake sure that equipment is not in any Scenario!!');
+      } else if (result == 1) {
+        await Dialogs.showMessageDialog(context, 'Delete success');
+        bloc.getAllEquipment();
+      }
+    }
+  }
 
-  // updateActor(item) {
-  //   Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (context) => AccountCreatePage(
-  //                 username: item['username'],
-  //                 password: item['password'],
-  //                 fullname: item['fullname'],
-  //                 description: item['descriptionAccount'],
-  //                 email: item['email'],
-  //                 image: item['image'],
-  //                 phone: item['phone'],
-  //                 isUpdate: true,
-  //               ))).then((value) {
-  //     if (value != null) {
-  //       bloc.getAllActor();
-  //     }
-  //   });
-  // }
+  updateEquipment(item) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EquipmentCreatePage(
+                  id: item['id'],
+                  name: item['name'],
+                  quantity: item['quantity'],
+                  status: item['status'] == 'available' ? 1 : 2,
+                  description: item['description'],
+                  image: item['image'],
+                  isUpdate: true,
+                ))).then((value) {
+      if (value != null) {
+        bloc.getAllEquipment();
+      }
+    });
+  }
 
   editModelBottomShee(context, item) {
     showModalBottomSheet(

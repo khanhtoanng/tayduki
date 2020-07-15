@@ -10,6 +10,7 @@ import 'package:project/ui/appbar_widget.dart';
 import 'package:project/ui/custom_drawer.dart';
 import 'package:project/ui/profile_management_page.dart';
 import 'package:foldable_sidebar/foldable_sidebar.dart';
+import 'package:project/ui/show_cart_page.dart';
 import 'package:project/utils/dialog_customize.dart';
 
 class AdminHomePage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 });
               },
             ),
-            screenContents: listMenuItem(context)),
+            screenContents: getBody(context)),
         // body: listMenuItem(context),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white,
@@ -55,9 +56,38 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+  Widget getBody(context) {
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(left: 20, bottom: 5, top: 2),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Destiny item',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+        ),
+        listMenuItem2(context),
+        Divider(
+          color: Colors.black45,
+          height: 15,
+        ),
+        Container(
+          padding: EdgeInsets.only(left: 20, bottom: 5, top: 5),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'App Service',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+        ),
+        listMenuItem(context),
+      ],
+    );
+  }
+
   Widget listMenuItem(context) {
     return Container(
-      height: MediaQuery.of(context).size.height * .8,
+      height: MediaQuery.of(context).size.height * .58,
       padding: EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: GridView.count(
         crossAxisSpacing: 5,
@@ -66,6 +96,21 @@ class _AdminHomePageState extends State<AdminHomePage> {
         children: getListMenuItem().map((item) {
           return menuItem(
               context, item.image, item.description1, item.description2);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget listMenuItem2(context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * .18,
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 2),
+      child: GridView.count(
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
+        crossAxisCount: 3,
+        children: getListMenuItem2().map((item) {
+          return menuItem2(context, item.image, item.description1);
         }).toList(),
       ),
     );
@@ -100,7 +145,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
-                BoxShadow(color: Colors.orange[100], blurRadius: 10)
+                BoxShadow(
+                    color: Colors.grey, blurRadius: 10, offset: Offset(0, 5))
               ]),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -132,6 +178,45 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+  Container menuItem2(context, String image, String description1) {
+    var size = MediaQuery.of(context).size;
+    return Container(
+      height: size.height * .1,
+      child: InkWell(
+        onTap: () {
+          navigator(description1);
+        },
+        child: Container(
+          margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey, blurRadius: 10, offset: Offset(0, 5))
+              ]),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                image,
+                width: size.width * .14,
+              ),
+              SizedBox(height: size.height * .02),
+              Text(
+                description1,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void navigator(String des1) {
     switch (des1) {
       case 'Account Manage':
@@ -139,8 +224,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
             MaterialPageRoute(builder: (context) => AccountManagementPage()));
         break;
       case 'Add Actor':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ActorManagementPage()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DestinyManagementPage(
+                      isAddActor: true,
+                    )));
         break;
       case 'Destiny Management':
         Navigator.push(context,
@@ -150,17 +239,46 @@ class _AdminHomePageState extends State<AdminHomePage> {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => EquipmentManagementPage()));
         break;
-      case 'Add Equimentment':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => EquipmentAddingPage()));
+      case 'Add Equiment':
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DestinyManagementPage(
+                      isAddEquip: true,
+                    )));
         break;
       case 'Profile Management':
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => ProfileManagementPage()));
         break;
+      case 'Cart':
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ShowCartPage()));
+        break;
       default:
         break;
     }
+  }
+
+  List<MenuContentItem> getListMenuItem2() {
+    MenuContentItem menuItemActorIcon = MenuContentItem(
+        image: 'assets/images/actorIcon.png',
+        description1: 'Add Actor',
+        description2: 'Add actor to movie script');
+    MenuContentItem menuItemShoppingEquipment = MenuContentItem(
+        image: 'assets/images/equipIcon.png',
+        description1: 'Add Equiment',
+        description2: 'Add equipment to movie script');
+    MenuContentItem menuItemShoppingCart = MenuContentItem(
+      image: 'assets/images/equipmentIconShopping.png',
+      description1: "Cart",
+    );
+    List<MenuContentItem> list = [
+      menuItemActorIcon,
+      menuItemShoppingEquipment,
+      menuItemShoppingCart,
+    ];
+    return list;
   }
 
   List<MenuContentItem> getListMenuItem() {
@@ -168,10 +286,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         image: 'assets/images/accountIcon.jpg',
         description1: 'Account Manage',
         description2: 'Create account for actor');
-    MenuContentItem menuItemActorIcon = MenuContentItem(
-        image: 'assets/images/actorIcon.png',
-        description1: 'Add Actor',
-        description2: 'Add actor to movie script');
+
     MenuContentItem menuItemDestiny = MenuContentItem(
         image: 'assets/images/destinyIcon.png',
         description1: 'Destiny Management',
@@ -180,20 +295,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
         image: 'assets/images/equimentIcon.png',
         description1: 'Equipment Manage',
         description2: 'Create Equipment');
-    MenuContentItem menuItemShoppingEquipment = MenuContentItem(
-        image: 'assets/images/equipmentIconShopping.png',
-        description1: 'Add Equimentment',
-        description2: 'Add equipment to movie script');
+
     MenuContentItem menuItemProfile = MenuContentItem(
         image: 'assets/images/profileIcon.png',
         description1: 'Profile Management',
         description2: 'Manipulate Profile');
     List<MenuContentItem> list = [
       menuItemAccount,
-      menuItemActorIcon,
       menuItemDestiny,
       menuItemEquipment,
-      menuItemShoppingEquipment,
       menuItemProfile
     ];
     return list;

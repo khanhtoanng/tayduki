@@ -18,6 +18,19 @@ class DestinyRepository {
     }
   }
 
+  Future<List<dynamic>> getDestinyById(int id) async {
+    List<dynamic> listData;
+    http.Response response = await http.get(BASE_API + '/destiny/$id');
+    if (response.statusCode == 200) {
+      print('Get  destiny sucess');
+      String source = Utf8Decoder().convert(response.bodyBytes);
+      listData = json.decode(source);
+      return listData;
+    } else {
+      throw Exception('Exception in getDestinyById');
+    }
+  }
+
   Future<int> updateDestiny(int id, String body) async {
     http.Response response = await http.put(BASE_API + '/destiny/$id',
         headers: {"Content-Type": "application/json"}, body: body);
