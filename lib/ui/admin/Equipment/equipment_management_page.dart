@@ -86,8 +86,13 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
         mini: true,
         backgroundColor: Colors.orangeAccent,
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ShowCartPage()));
+          Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ShowCartPage()))
+              .then((value) {
+            if (value != null) {
+              bloc.getAllEquipment();
+            }
+          });
         },
         child: Icon(Icons.shopping_basket),
       ),

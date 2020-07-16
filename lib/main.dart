@@ -19,8 +19,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       color: Colors.white,
-      initialRoute: '/LoginPage',
+      initialRoute: '/AnimationFirstPage',
       routes: <String, WidgetBuilder>{
         '/LoginPage': (BuildContext context) => new LoginPage(),
         '/AdminHomePage': (BuildContext context) => new AdminHomePage(),
