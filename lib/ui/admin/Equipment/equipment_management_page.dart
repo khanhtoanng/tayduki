@@ -54,7 +54,7 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
       backgroundColor: Colors.white,
       appBar:
           AppBarCustomize().setAppbar(context, 'Equipment Management', true),
-      body: Container(child: getBody(context)),
+      body: SingleChildScrollView(child: Container(child: getBody(context))),
       floatingActionButton: Container(
         padding: EdgeInsets.only(top: 10),
         child: FloatingActionButton(
@@ -179,7 +179,7 @@ class _EquipmentManagementPageState extends State<EquipmentManagementPage> {
               ),
         SingleChildScrollView(
           child: Container(
-            height: size.height * .575,
+            height: size.height * .525,
             child: Column(
               children: <Widget>[
                 getListEquipment(context),

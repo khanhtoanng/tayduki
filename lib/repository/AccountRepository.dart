@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -12,6 +14,28 @@ class AccountRepository {
       return response.body;
     } else {
       throw Exception('Exception in login');
+    }
+  }
+
+  Future<String> insertFcm(String username, String token) async {
+    http.Response response =
+        await http.get(BASE_API + '/actor/fcm/$username?token=$token');
+    if (response.statusCode == 200) {
+      print('insert fcm success');
+      return response.body;
+    } else {
+      throw Exception('Exception in insertFcm');
+    }
+  }
+
+  Future<String> getFcm(String username) async {
+    http.Response response =
+        await http.get(BASE_API + '/actor/fcm/get/$username');
+    if (response.statusCode == 200) {
+      print('get fcm success');
+      return response.body;
+    } else {
+      throw Exception('Exception in getFcm');
     }
   }
 
@@ -92,7 +116,8 @@ class AccountRepository {
         await http.get(BASE_API + '/actor/history/$username');
     if (response.statusCode == 200) {
       print('Get all history success');
-      listData = json.decode(response.body);
+      String source = Utf8Decoder().convert(response.bodyBytes);
+      listData = json.decode(source);
       return listData;
     } else {
       throw Exception('Exception in getHistoryDestiny');
@@ -105,10 +130,38 @@ class AccountRepository {
         await http.get(BASE_API + '/actor/incoming/$username');
     if (response.statusCode == 200) {
       print('Get all Incoming Destiny success');
-      listData = json.decode(response.body);
+      String source = Utf8Decoder().convert(response.bodyBytes);
+      listData = json.decode(source);
       return listData;
     } else {
       throw Exception('Exception in getIncomingDestiny');
+    }
+  }
+
+  Future<void> sendMessage(String body, String title, List tokens) async {
+    Map<String, dynamic> data = {
+      "notification": {"body": "$body", "title": "$title"},
+      "priority": "high",
+      "data": {
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+        "id": "1",
+        "status": "done"
+      },
+      "registration_ids": tokens
+    };
+
+    http.Response response =
+        await http.post('https://fcm.googleapis.com/fcm/send',
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization":
+                  "key=AAAAPmeLl5Q:APA91bFUA8EE74UKz_7SsuaSvFdBiqWrOhivQrpgitzEqkZWSE3G6UXitaI4jJH7Twh1_UelN_mIg5yFfXK9mSTSvIEa6YKskGCazGnUoQ7-Xhwo1LYMph6GUyVr-texhi6SD3Hl2XDS"
+            },
+            body: json.encode(data));
+    if (response.statusCode == 200) {
+      print('Send message success');
+    } else {
+      throw Exception('Exception in sendMessage');
     }
   }
 }

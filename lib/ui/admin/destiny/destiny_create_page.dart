@@ -1,19 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:project/bloc/DestinyBloc.dart';
+import 'package:project/bloc/ImageBloc.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:project/utils/dialog_customize.dart';
 import 'package:toast/toast.dart';
+import 'package:file_picker/file_picker.dart';
 
 class DestinyCreatePage extends StatefulWidget {
-  int id;
+  int id, isDone;
   DateTime createTime, endTime;
   String name, location, description, detail, numberOfScreen;
   bool isUpdate;
   DestinyCreatePage(
       {Key key,
       this.id,
+      this.isDone,
       this.name,
       this.location,
       this.createTime,
@@ -30,6 +35,18 @@ class DestinyCreatePage extends StatefulWidget {
 class _DestinyCreatePageState extends State<DestinyCreatePage> {
   final formKeyDestiny = GlobalKey<FormState>();
   DestinyBloc bloc = DestinyBloc();
+  ImageBloc imageBloc = ImageBloc();
+  int group = 0;
+  File file;
+  @override
+  void initState() {
+    if (widget.isDone != null) {
+      setState(() {
+        group = widget.isDone;
+      });
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,15 +116,81 @@ class _DestinyCreatePageState extends State<DestinyCreatePage> {
                   onSaved: (input) => widget.numberOfScreen = input,
                   keyboardType: TextInputType.number),
             ),
-            SizedBox(
-              height: sizeH * .1,
+            Container(
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(width: 1, color: Colors.black45)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      'Done : ',
+                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                    ),
+                    Radio(
+                      onChanged: (value) {
+                        setState(() {
+                          group = value;
+                        });
+                      },
+                      groupValue: group,
+                      value: 1,
+                    ),
+                    Text(
+                      'Not Done: ',
+                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                    ),
+                    Radio(
+                      onChanged: (value) {
+                        setState(() {
+                          group = value;
+                        });
+                      },
+                      groupValue: group,
+                      value: 0,
+                    )
+                  ],
+                )),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: SizedBox(
+                height: sizeH * .1,
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      'Detail : ',
+                      style: TextStyle(color: Colors.black54, fontSize: 18),
+                    ),
+                    InkWell(
+                        onTap: () {
+                          chooseFile();
+                        },
+                        child: Icon(
+                          Icons.file_upload,
+                          size: 35,
+                        )),
+                  ],
+                ),
+              ),
             ),
-            // getImage(context, sizeH, sizeW),
             submitButton(context)
           ],
         ),
       ),
     );
+  }
+
+  chooseFile() async {
+    File temp = await FilePicker.getFile();
+    setState(() {
+      file = temp;
+    });
+    if (file != null) {
+      Toast.show("Add success", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
   }
 
   Widget datepickerStart(context) {
@@ -254,8 +337,18 @@ class _DestinyCreatePageState extends State<DestinyCreatePage> {
   }
 
   insertDestiny(context) async {
-    int result = await bloc.insertDestiny(widget.name, widget.location,
-        widget.description, widget.createTime.toString().split(' ')[0],
+    widget.isDone = group;
+    if (file != null) {
+      await imageBloc.upfiletoFB(file).then((value) {
+        widget.detail = value;
+      });
+    }
+    int result = await bloc.insertDestiny(
+        widget.name,
+        widget.location,
+        widget.description,
+        widget.createTime.toString().split(' ')[0],
+        widget.isDone,
         detail: widget.detail,
         endTime: widget.endTime.toString().split(' ')[0],
         numberOfScreen: widget.numberOfScreen);
@@ -268,12 +361,15 @@ class _DestinyCreatePageState extends State<DestinyCreatePage> {
   }
 
   updateDestiny(context) async {
+    widget.isDone = group;
+
     int result = await bloc.updatetDestiny(
         widget.id,
         widget.name,
         widget.location,
         widget.description,
         widget.createTime.toString().split(' ')[0],
+        widget.isDone,
         detail: widget.detail,
         endTime: widget.endTime.toString().split(' ')[0],
         numberOfScreen: widget.numberOfScreen);

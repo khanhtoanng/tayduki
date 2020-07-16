@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:project/model/MenuContentItem.dart';
 import 'package:project/ui/admin/account/account_management_page.dart';
-import 'package:project/ui/admin/actor_management_page.dart';
 import 'package:project/ui/admin/destiny/destiny_management_page.dart';
-import 'package:project/ui/admin/equipment_adding_page.dart';
 import 'package:project/ui/admin/Equipment/equipment_management_page.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:project/ui/custom_drawer.dart';
@@ -20,6 +18,12 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   FSBStatus drawerStatus;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(

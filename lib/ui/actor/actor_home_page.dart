@@ -16,13 +16,17 @@ class _ActorHomePageState extends State<ActorHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBarCustomize().setAppbar(context,'Actor Home Page',false),
+        appBar: AppBarCustomize().setAppbar(context, 'Actor Home Page', false),
         body: listMenuItem(context));
   }
 
-  Container listMenuItem(BuildContext context) {
+  Widget listMenuItem(context) {
     return Container(
+      height: MediaQuery.of(context).size.height * .58,
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: GridView.count(
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
         crossAxisCount: 2,
         children: getListMenuItem().map((item) {
           return menuItem(
@@ -35,50 +39,49 @@ class _ActorHomePageState extends State<ActorHomePage> {
   /**
    * Menu Item
    */
-  Container menuItem(BuildContext context, String image, String description1,
-      String description2) {
+  Container menuItem(
+      context, String image, String description1, String description2) {
+    var size = MediaQuery.of(context).size.width;
     return Container(
-      child: FlatButton(
-        padding: EdgeInsets.all(5),
-        onPressed: () {
+      child: InkWell(
+        onTap: () {
           navigator(description1);
         },
         child: Container(
-            margin: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                      color: Color.fromRGBO(143, 148, 251, 2),
-                      blurRadius: 20,
-                      offset: Offset(0, 10))
-                ]),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.asset(
-                  image,
-                  width: 65,
+          margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey, blurRadius: 10, offset: Offset(0, 5))
+              ]),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                image,
+                width: size * .17,
+              ),
+              SizedBox(height: size * .02),
+              Text(
+                description1,
+                style: TextStyle(
+                  fontSize: size * .045,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 14),
-                Text(
-                  description1,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 14),
-                Text(
-                  description2,
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.grey[600]),
-                )
-              ],
-            )),
+              ),
+              SizedBox(height: size * .02),
+              Text(
+                description2,
+                style: TextStyle(
+                    fontSize: size * .04,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey[400]),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

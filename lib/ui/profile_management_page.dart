@@ -190,21 +190,18 @@ class _ProfileManagementPageState extends State<ProfileManagementPage> {
                 child: SizedBox(
                   width: size.width * .35,
                   height: size.height * .2,
-                  child: Hero(
-                    tag: item,
-                    child: Image.network(
-                      item['image'],
-                      fit: BoxFit.fill,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Color(0xffb744b8))),
-                        );
-                      },
-                    ),
+                  child: Image.network(
+                    item['image'],
+                    fit: BoxFit.fill,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                            valueColor: new AlwaysStoppedAnimation<Color>(
+                                Color(0xffb744b8))),
+                      );
+                    },
                   ),
                 ),
               ),

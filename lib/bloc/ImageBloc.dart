@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -56,19 +57,43 @@ class ImageBloc {
     return result;
   }
 
-  Future<int> upfiletoFB(File image) async {
+  Future<int> upImagetoFB(File image, String type) async {
+    String child;
+    if (type == 'actor') {
+      child = '/photos/actor/${image.path.split('/').last}';
+    } else if (type == 'equipment') {
+      child = '/photos/equipment/${image.path.split('/').last}';
+    }
     int result = -1;
-    final StorageReference storageReference = FirebaseStorage.instance
-        .ref()
-        .child('/photos/actor/${image.path.split('/').last}');
+    final StorageReference storageReference =
+        FirebaseStorage.instance.ref().child(child);
     StorageUploadTask uploadTask = storageReference.putFile(image);
     await uploadTask.onComplete;
     print('File Uploaded');
-    storageReference.getDownloadURL().then((fileURL) {
-      insertImage(fileURL, 'actor');
+    await storageReference.getDownloadURL().then((fileURL) {
+      insertImage(fileURL, type);
       result = 1;
     });
     return result;
+  }
+
+  Future<String> upfiletoFB(File file) async {
+    var u;
+    try {
+      StorageReference storageReference = FirebaseStorage.instance
+          .ref()
+          .child('/destiny/${file.path.split('/').last}');
+      StorageUploadTask uploadTask = storageReference.putFile(file);
+      await uploadTask.onComplete;
+      print('File Uploaded');
+      await storageReference.getDownloadURL().then((fileURL) {
+        u = fileURL;
+      });
+    } catch (e) {
+      print(e);
+    }
+
+    return u;
   }
 
   void dispose() {

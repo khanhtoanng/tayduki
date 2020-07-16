@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:project/ui/image_add_page.dart';
+import 'package:project/ui/image_gallory_page.dart';
 import 'package:project/ui/profile_management_page.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -52,10 +54,12 @@ class CustomDrawer extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              debugPrint("Tapped settings");
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ImageAddPage()));
+              closeDrawer();
             },
-            leading: Icon(Icons.settings),
-            title: Text("Settings"),
+            leading: Icon(Icons.add_a_photo),
+            title: Text("Add Image"),
           ),
           Divider(
             height: 1,
@@ -63,7 +67,20 @@ class CustomDrawer extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              debugPrint("Tapped Notifications");
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ImageGalloryPage()));
+              closeDrawer();
+            },
+            leading: Icon(Icons.image),
+            title: Text("Image"),
+          ),
+          Divider(
+            height: 1,
+            color: Colors.grey,
+          ),
+          ListTile(
+            onTap: () {
+              print("Tapped Notifications");
             },
             leading: Icon(Icons.notifications),
             title: Text("Notifications"),

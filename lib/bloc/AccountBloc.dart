@@ -20,7 +20,7 @@ class AccountBloc {
   List<dynamic> listActor;
 
   // return Role
-  Future<String> login(String username, String password) async {
+  Future<String> login(String username, String password, token) async {
     var role;
 
     if (username.length == 0) {
@@ -41,7 +41,7 @@ class AccountBloc {
     try {
       role = await accountRepository.login(username.trim(), password.trim());
       print(role + '     in bloc');
-
+      await accountRepository.insertFcm(username, token);
       if (role.toString().length > 0) {
         usernameController.sink.add('ok');
         passwordController.sink.add('ok');

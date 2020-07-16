@@ -4,11 +4,12 @@ import 'dart:developer';
 
 import 'package:project/model/EquipmentDestiny.dart';
 import 'package:project/model/RoleActor.dart';
+import 'package:project/repository/AccountRepository.dart';
 import 'package:project/repository/DestinyRepository.dart';
 
 class ShoppingCartBloc {
   DestinyRepository destinyRepository = DestinyRepository();
-
+  AccountRepository accountRepository = AccountRepository();
   final listActorInDestinyController = StreamController.broadcast();
   final listEquipmentController = StreamController.broadcast();
 
@@ -86,14 +87,17 @@ class ShoppingCartBloc {
     return -1;
   }
 
-  updateEquipment(
-      int idDestiny, int idEquipment, int equipmentQuantity, int newQuantity) {}
+  updateEquipment(int idDestiny, int idEquipment, int newQuantity) {
+    listEquipmentToDestitny.forEach((item) {
+      if (item.idDestiny == idDestiny && item.idEquipment == idEquipment) {
+        item.equipmentQuantity = newQuantity;
+      }
+    });
+  }
 
-  deleteEquipment(int idDestiny, String username, String role) {
-    listActorToDestiny.removeWhere((item) =>
-        item.idDestiny == idDestiny &&
-        item.username == username &&
-        item.roleInDestiny == role);
+  deleteEquipment(int idDestiny, int idEquipment) {
+    listEquipmentToDestitny.removeWhere((item) =>
+        item.idDestiny == idDestiny && item.idEquipment == idEquipment);
   }
 
   getListActor() {
@@ -104,12 +108,15 @@ class ShoppingCartBloc {
     listEquipmentController.sink.add(listEquipmentToDestitny);
   }
 
-  insertListActorToDestiny() async {
+  Future<int> insertListActorToDestiny() async {
     var result = -1;
     if (listActorToDestiny.length != 0) {
       try {
         var data = json.encode(listActorToDestiny);
         result = await destinyRepository.insertListActorToDestiny(data);
+        var list = await getTokens();
+        accountRepository.sendMessage(
+            'You got new role in destiny', 'New destiny', list);
         listActorToDestiny = new List();
         listActorInDestinyController.sink.add(listActorToDestiny);
       } catch (e) {
@@ -119,7 +126,16 @@ class ShoppingCartBloc {
     return result;
   }
 
-  insertListEquipmentToDestiny() async {
+  Future<List<String>> getTokens() async {
+    List<String> fcmTokens = new List();
+    for (var item in listActorToDestiny) {
+      String token = await accountRepository.getFcm(item.username);
+      fcmTokens.add(token);
+    }
+    return fcmTokens;
+  }
+
+  Future<int> insertListEquipmentToDestiny() async {
     var result = -1;
     if (listEquipmentToDestitny.length != 0) {
       try {

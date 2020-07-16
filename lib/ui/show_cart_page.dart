@@ -1,9 +1,12 @@
 // import 'dart:developer';
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project/ui/appbar_widget.dart';
 import 'package:project/bloc/ShoppingCartBloc.dart';
+import 'package:project/utils/dialog_customize.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
@@ -304,9 +307,9 @@ class _ShowCartPageState extends State<ShowCartPage>
               color: Colors.transparent,
               icon: Icons.delete,
               onTap: () {
-                // shoppingBloc.deleteActor(actorList[index].idDestiny,
-                //     actorList[index].username, actorList[index].roleInDestiny);
-                // shoppingBloc.getListActor();
+                shoppingBloc.deleteEquipment(equipmentList[index].idDestiny,
+                    equipmentList[index].idEquipment);
+                shoppingBloc.getListEquipmentToDestitny();
               },
             ),
           ),
@@ -592,8 +595,15 @@ class _ShowCartPageState extends State<ShowCartPage>
     }
   }
 
-  checkout() {
-    shoppingBloc.insertListActorToDestiny();
-    shoppingBloc.insertListEquipmentToDestiny();
+  checkout() async {
+    if (shoppingBloc.listActorToDestiny.length != 0 ||
+        shoppingBloc.listEquipmentToDestitny.length != 0) {
+      await shoppingBloc.insertListActorToDestiny();
+      await shoppingBloc.insertListEquipmentToDestiny();
+      await Dialogs.showMessageDialog(context, 'Add success');
+      shoppingBloc.getListActor();
+      shoppingBloc.getListEquipmentToDestitny();
+      Navigator.of(context).pop(true);
+    }
   }
 }

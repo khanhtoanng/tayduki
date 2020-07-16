@@ -70,8 +70,8 @@ class DestinyBloc {
     return result;
   }
 
-  insertDestiny(
-      String name, String location, String description, String createTime,
+  insertDestiny(String name, String location, String description,
+      String createTime, int isDone,
       {String detail, String endTime, String numberOfScreen}) async {
     int result;
     Map body = {
@@ -82,13 +82,14 @@ class DestinyBloc {
       'endTime': endTime,
       'numberOfScreen': numberOfScreen,
       'detail': detail,
+      'isDone': isDone
     };
     result = await destinyRepository.insertDestiny(json.encode(body));
     return result;
   }
 
   updatetDestiny(int id, String name, String location, String description,
-      String createTime,
+      String createTime, int isDone,
       {String detail, String endTime, String numberOfScreen}) async {
     int result;
     Map body = {
@@ -100,6 +101,7 @@ class DestinyBloc {
       'endTime': endTime,
       'numberOfScreen': numberOfScreen,
       'detail': detail,
+      'isDone': isDone
     };
     try {
       result = await destinyRepository.updateDestiny(id, json.encode(body));

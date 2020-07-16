@@ -14,6 +14,7 @@ class ImageAddPage extends StatefulWidget {
 
 class _ImageAddPageState extends State<ImageAddPage> {
   File image;
+  int group = 1;
   ImageBloc bloc = ImageBloc();
   @override
   Widget build(BuildContext context) {
@@ -47,10 +48,37 @@ class _ImageAddPageState extends State<ImageAddPage> {
           height: 300,
           width: 300,
         ),
+        Text(
+          'Actor : ',
+          style: TextStyle(fontSize: 16, color: Colors.black45),
+        ),
+        Radio(
+          onChanged: (value) {
+            setState(() {
+              group = value;
+            });
+          },
+          groupValue: group,
+          value: 1,
+        ),
+        Text(
+          'Equipment : ',
+          style: TextStyle(fontSize: 16, color: Colors.black45),
+        ),
+        Radio(
+          onChanged: (value) {
+            setState(() {
+              group = value;
+            });
+          },
+          groupValue: group,
+          value: 2,
+        ),
         RaisedButton(
           child: Text('Upload'),
           onPressed: () async {
-            int result = await bloc.upfiletoFB(image);
+            String type = group == 1 ? 'actor' : 'equipment';
+            int result = await bloc.upImagetoFB(image, type);
             if (result == -1) {
               Toast.show("Insert fail", context,
                   duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);

@@ -18,14 +18,14 @@ class DestinyRepository {
     }
   }
 
-  Future<List<dynamic>> getDestinyById(int id) async {
-    List<dynamic> listData;
+  Future<dynamic> getDestinyById(int id) async {
+    var data;
     http.Response response = await http.get(BASE_API + '/destiny/$id');
     if (response.statusCode == 200) {
       print('Get  destiny sucess');
       String source = Utf8Decoder().convert(response.bodyBytes);
-      listData = json.decode(source);
-      return listData;
+      data = json.decode(source);
+      return data;
     } else {
       throw Exception('Exception in getDestinyById');
     }
@@ -101,6 +101,7 @@ class DestinyRepository {
         BASE_API + '/destiny/addListEquiment',
         headers: {"Content-Type": "application/json"},
         body: body);
+    print('booooooooooooooooo    ' + body);
     if (response.statusCode == 200) {
       try {
         if (int.parse(response.body) < 0) {

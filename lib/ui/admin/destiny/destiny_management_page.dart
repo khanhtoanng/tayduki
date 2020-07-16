@@ -42,13 +42,19 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustomize().setAppbar(context, 'Destiny Management', true),
-      body: SingleChildScrollView(child: Container(child: getBody(context))),
+      body: Container(child: getBody(context)),
       floatingActionButton: FloatingActionButton(
         mini: true,
         backgroundColor: Colors.orangeAccent,
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => DestinyCreatePage()));
+                  MaterialPageRoute(builder: (context) => DestinyCreatePage()))
+              .then((value) {
+            if (value != null) {
+              bloc.getAllDestiny();
+            }
+          });
+          ;
         },
         child: Icon(Icons.add),
       ),
@@ -123,12 +129,14 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                 ),
               ),
-        Container(
-          height: size.height * .7,
-          child: Column(
-            children: <Widget>[
-              getListDestiny(context),
-            ],
+        SingleChildScrollView(
+          child: Container(
+            height: size.height * .625,
+            child: Column(
+              children: <Widget>[
+                getListDestiny(context),
+              ],
+            ),
           ),
         ),
       ],
@@ -318,6 +326,7 @@ class _DestinyManagementPageState extends State<DestinyManagementPage> {
         MaterialPageRoute(
             builder: (context) => DestinyCreatePage(
                   id: item['id'],
+                  isDone: item['isDone'],
                   name: item['name'],
                   description: item['description'],
                   createTime: DateTime.parse(item['createTime']),

@@ -3,7 +3,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:project/ui/actor/actor_home_page.dart';
 import 'package:project/ui/admin/account/account_management_page.dart';
 import 'package:project/ui/admin/admin_home_page.dart';
-import 'package:project/ui/admin/equipment_adding_page.dart';
+import 'package:project/ui/login_1st_page.dart';
 import 'ui/login_page.dart';
 
 void main() async {
@@ -25,6 +25,8 @@ class MyApp extends StatelessWidget {
         '/LoginPage': (BuildContext context) => new LoginPage(),
         '/AdminHomePage': (BuildContext context) => new AdminHomePage(),
         '/ActorHomePage': (BuildContext context) => new ActorHomePage(),
+        '/AnimationFirstPage': (BuildContext context) =>
+            new AnimationFirstPage(),
         '/AccountManagementPage': (BuildContext context) =>
             new AccountManagementPage(),
       },

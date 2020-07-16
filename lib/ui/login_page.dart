@@ -4,6 +4,7 @@ import 'package:project/ui/actor/actor_home_page.dart';
 import 'package:project/ui/admin/admin_home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,6 +17,30 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordEditController = TextEditingController();
 
   AccountBloc bloc = AccountBloc();
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+  String token;
+  @override
+  void initState() {
+    super.initState();
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+    firebaseMessaging.getToken().then((String tok) {
+      print("Tokennnnnnn: " + tok);
+      setState(() {
+        token = tok;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -194,8 +219,9 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       isLoading = true;
     });
-    var role =
-        await bloc.login(userEditController.text, passwordEditController.text);
+    print(token);
+    var role = await bloc.login(
+        userEditController.text, passwordEditController.text, token);
     if (role.length == 0) {
       setState(() {
         isLoading = false;
